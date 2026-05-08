@@ -1,14 +1,14 @@
 output "instance_public_ip" {
-  description = "Public IP of the EC2 instance"
-  value       = aws_instance.app_server.public_ip
+  description = "Public IP of EC2 instance"
+  value       = module.ec2.instance_public_ip
 }
 
 output "app_url" {
-  description = "URL to access the application"
-  value       = "http://${aws_instance.app_server.public_ip}:5000"
+  description = "Application URL"
+  value       = "http://${module.ec2.instance_public_ip}:5000"
 }
 
 output "jenkins_url" {
-  description = "URL to access Jenkins"
-  value       = "http://${aws_instance.app_server.public_ip}:8080"
+  description = "Jenkins URL"
+  value       = "http://${module.ec2.instance_public_ip}:8080"
 }
