@@ -5,7 +5,7 @@ variable "aws_region" {
 
 variable "project_name" {
   description = "Project name used for tagging"
-  default     = "sampson-devops"
+  default     = "ezea-devops"
 }
 
 variable "vpc_cidr" {
@@ -30,5 +30,5 @@ variable "instance_type" {
 
 variable "public_key_path" {
   description = "Path to SSH public key"
-  default     = "~/.ssh/id_rsa.pub"
+  default     = "C:/Users/ABELCLINTON/.ssh/id_rsa.pub"
 }

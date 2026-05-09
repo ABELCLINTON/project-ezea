@@ -88,8 +88,8 @@ Before deploying, make sure you have:
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/Ezehsampson1/practical-challenge.git
-cd practical-challenge
+git clone https://github.com/ABELCLINTON/project-ezea.git
+cd project-ezea
 ```
 
 ### 2. Provision Infrastructure with Terraform

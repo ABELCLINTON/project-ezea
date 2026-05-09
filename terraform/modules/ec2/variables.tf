@@ -28,5 +28,5 @@ variable "instance_type" {
 variable "public_key_path" {
   description = "Path to SSH public key"
   type        = string
-  default     = "~/.ssh/id_rsa.pub"
+  default     = "C:/Users/ABELCLINTON/.ssh/id_rsa.pub"
 }

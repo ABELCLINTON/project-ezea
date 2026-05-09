@@ -18,5 +18,5 @@
 
 ### Monitoring Layer
 - CloudWatch Agent
-- Custom metrics namespace: SampsonDevOps/EC2
+- Custom metrics namespace: EzeaDevOps/EC2
 - Log groups for Jenkins and system logs

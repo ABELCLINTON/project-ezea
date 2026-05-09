@@ -4,7 +4,7 @@ app = Flask(__name__)
 
 @app.route("/")
 def home():
-    return "<h1>🚀 Sampson's DevOps App is Running!</h1><p>Deployed with Docker, Terraform & Jenkins on AWS.</p>"
+    return "<h1>🚀 Ezea's DevOps App is Running!</h1><p>Deployed with Docker, Terraform & Jenkins on AWS.</p>"
 
 @app.route("/health")
 def health():

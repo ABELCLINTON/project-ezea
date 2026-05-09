@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     environment {
-        APP_IMAGE = "sampson-devops-app"
-        CONTAINER_NAME = "sampson-app"
+        APP_IMAGE = "ezea-devops-app"
+        CONTAINER_NAME = "ezea-app"
         APP_PORT = "5000"
     }
 
@@ -30,14 +30,14 @@ pipeline {
                 sh """
                 docker stop test-container || true
                 docker rm test-container || true
-                docker run -d --name test-container -p 5001:5000 sampson-devops-app:latest
+                docker run -d --name test-container -p 5001:5000 ezea-devops-app:latest
                 sleep 5
                 docker exec test-container python -c "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')" || exit 1
                 docker stop test-container
                 docker rm test-container
             """
             }
-    }
+        }
         stage('Deploy') {
             steps {
                 echo 'Deploying application...'
@@ -61,7 +61,7 @@ pipeline {
                 echo 'Verifying deployment...'
                 sh """
                 sleep 5
-                docker exec sampson-app python -c "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"
+                docker exec ezea-app python -c "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"
                 echo 'Application is running successfully!'
                 """
             }

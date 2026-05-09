@@ -40,13 +40,13 @@ cat > /opt/aws/amazon-cloudwatch-agent/bin/config.json << 'EOF'
         "collect_list": [
           {
             "file_path": "/var/log/jenkins/jenkins.log",
-            "log_group_name": "sampson-devops/jenkins",
+            "log_group_name": "ezea-devops/jenkins",
             "log_stream_name": "{instance_id}/jenkins",
             "timezone": "UTC"
           },
           {
             "file_path": "/var/log/messages",
-            "log_group_name": "sampson-devops/system",
+            "log_group_name": "ezea-devops/system",
             "log_stream_name": "{instance_id}/messages",
             "timezone": "UTC"
           }
@@ -55,7 +55,7 @@ cat > /opt/aws/amazon-cloudwatch-agent/bin/config.json << 'EOF'
     }
   },
   "metrics": {
-    "namespace": "SampsonDevOps/EC2",
+    "namespace": "EzeaDevOps/EC2",
     "metrics_collected": {
       "cpu": {
         "measurement": [
