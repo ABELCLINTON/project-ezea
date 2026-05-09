@@ -30,15 +30,14 @@ pipeline {
                 sh """
                 docker stop test-container || true
                 docker rm test-container || true
-                docker run -d --name test-container sampson-devops-app:latest
+                docker run -d --name test-container -p 5001:5000 sampson-devops-app:latest
                 sleep 5
-                docker exec test-container curl -f http://localhost:5000/health || exit 1
+                docker exec test-container python -c "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')" || exit 1
                 docker stop test-container
                 docker rm test-container
             """
             }
     }
-
         stage('Deploy') {
             steps {
                 echo '🚀 Deploying application...'
