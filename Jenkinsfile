@@ -11,14 +11,14 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                echo '📥 Checking out source code...'
+                echo 'Checking out source code...'
                 checkout scm
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                echo '🐳 Building Docker image...'
+                echo 'Building Docker image...'
                 sh "docker build -t ${APP_IMAGE}:${BUILD_NUMBER} ."
                 sh "docker tag ${APP_IMAGE}:${BUILD_NUMBER} ${APP_IMAGE}:latest"
             }
@@ -26,7 +26,7 @@ pipeline {
 
         stage('Test') {
             steps {
-                echo '🧪 Running basic health test...'
+                echo 'Running basic health test...'
                 sh """
                 docker stop test-container || true
                 docker rm test-container || true
@@ -40,7 +40,7 @@ pipeline {
     }
         stage('Deploy') {
             steps {
-                echo '🚀 Deploying application...'
+                echo 'Deploying application...'
                 sh """
                     # Stop and remove existing container if running
                     docker stop ${CONTAINER_NAME} || true
@@ -58,7 +58,7 @@ pipeline {
 
         stage('Verify Deployment') {
             steps {
-                echo '✅ Verifying deployment...'
+                echo 'Verifying deployment...'
                 sh """
                 sleep 5
                 docker exec sampson-app python -c "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"
@@ -70,13 +70,13 @@ pipeline {
 
     post {
         success {
-            echo '🎉 Pipeline completed successfully! App is live!'
+            echo 'Pipeline completed successfully! App is live!'
         }
         failure {
-            echo '❌ Pipeline failed. Check the logs above.'
+            echo 'Pipeline failed. Check the logs above.'
         }
         always {
-            echo '🧹 Cleaning up old Docker images...'
+            echo 'Cleaning up old Docker images...'
             sh "docker image prune -f || true"
         }
     }
