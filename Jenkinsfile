@@ -60,9 +60,9 @@ pipeline {
             steps {
                 echo '✅ Verifying deployment...'
                 sh """
-                    sleep 5
-                    curl -f http://localhost:${APP_PORT}/health || exit 1
-                    echo 'Application is running successfully!'
+                sleep 5
+                docker exec sampson-app python -c "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"
+                echo 'Application is running successfully!'
                 """
             }
         }
