@@ -28,11 +28,11 @@ pipeline {
             steps {
                 echo '🧪 Running basic health test...'
                 sh """
-                    docker run -d --name test-container -p 5001:5000 ${APP_IMAGE}:latest
-                    sleep 5
-                    curl -f http://localhost:5001/health || exit 1
-                    docker stop test-container
-                    docker rm test-container
+                docker run -d --name test-container sampson-devops-app:latest
+                sleep 5
+                docker exec test-container curl -f http://localhost:5000/health || exit 1
+                docker stop test-container
+                docker rm test-container 
                 """
             }
         }
