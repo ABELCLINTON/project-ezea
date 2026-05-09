@@ -28,14 +28,16 @@ pipeline {
             steps {
                 echo '🧪 Running basic health test...'
                 sh """
+                docker stop test-container || true
+                docker rm test-container || true
                 docker run -d --name test-container sampson-devops-app:latest
                 sleep 5
                 docker exec test-container curl -f http://localhost:5000/health || exit 1
                 docker stop test-container
-                docker rm test-container 
-                """
+                docker rm test-container
+            """
             }
-        }
+    }
 
         stage('Deploy') {
             steps {
