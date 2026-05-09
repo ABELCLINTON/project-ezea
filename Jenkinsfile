@@ -2,82 +2,62 @@ pipeline {
     agent any
 
     environment {
-        APP_IMAGE = "ezea-devops-app"
-        CONTAINER_NAME = "ezea-app"
-        APP_PORT = "5000"
+        IMAGE_NAME = "ezea-devops-app"
+        IMAGE_TAG  = "${BUILD_NUMBER}"
+        TF_DIR     = "terraform"
+        SSH_KEY    = credentials('ec2-ssh-key')
     }
 
     stages {
 
-        stage('Checkout') {
+        stage('Build') {
             steps {
-                echo 'Checking out source code...'
-                checkout scm
-            }
-        }
-
-        stage('Build Docker Image') {
-            steps {
-                echo 'Building Docker image...'
-                sh "docker build -t ${APP_IMAGE}:${BUILD_NUMBER} ."
-                sh "docker tag ${APP_IMAGE}:${BUILD_NUMBER} ${APP_IMAGE}:latest"
+                sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
             }
         }
 
         stage('Test') {
             steps {
-                echo 'Running basic health test...'
                 sh """
-                docker stop test-container || true
-                docker rm test-container || true
-                docker run -d --name test-container -p 5001:5000 ezea-devops-app:latest
-                sleep 5
-                docker exec test-container python -c "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')" || exit 1
-                docker stop test-container
-                docker rm test-container
-            """
+                    docker run -d --name test-app -p 5001:5000 ${IMAGE_NAME}:${IMAGE_TAG}
+                    sleep 5
+                    curl -f http://localhost:5001/health
+                    docker stop test-app && docker rm test-app
+                """
             }
         }
+
         stage('Deploy') {
             steps {
-                echo 'Deploying application...'
-                sh """
-                    # Stop and remove existing container if running
-                    docker stop ${CONTAINER_NAME} || true
-                    docker rm ${CONTAINER_NAME} || true
+                dir("${TF_DIR}") {
+                    sh "terraform init -input=false"
+                    sh "terraform apply -auto-approve -var 'image_tag=${IMAGE_TAG}'"
 
-                    # Run the new container
-                    docker run -d \
-                        --name ${CONTAINER_NAME} \
-                        -p ${APP_PORT}:5000 \
-                        --restart always \
-                        ${APP_IMAGE}:latest
-                """
-            }
-        }
+                    script {
+                        def EC2_IP = sh(script: 'terraform output -raw instance_public_ip', returnStdout: true).trim()
 
-        stage('Verify Deployment') {
-            steps {
-                echo 'Verifying deployment...'
-                sh """
-                sleep 5
-                docker exec ezea-app python -c "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"
-                echo 'Application is running successfully!'
-                """
+                        sh """
+                            docker save ${IMAGE_NAME}:${IMAGE_TAG} -o /tmp/app.tar
+                            scp -o StrictHostKeyChecking=no -i ${SSH_KEY} /tmp/app.tar ec2-user@${EC2_IP}:/home/ec2-user/
+                            ssh -o StrictHostKeyChecking=no -i ${SSH_KEY} ec2-user@${EC2_IP} '
+                                docker load -i /home/ec2-user/app.tar
+                                docker stop ezea-app || true && docker rm ezea-app || true
+                                docker run -d --name ezea-app --restart always -p 5000:5000 ${IMAGE_NAME}:${IMAGE_TAG}
+                            '
+                            rm -f /tmp/app.tar
+                        """
+
+                        echo "✅ Live at: http://${EC2_IP}:5000"
+                    }
+                }
             }
         }
     }
 
     post {
-        success {
-            echo 'Pipeline completed successfully! App is live!'
-        }
         failure {
-            echo 'Pipeline failed. Check the logs above.'
-        }
-        always {
-            echo 'Cleaning up old Docker images...'
-            sh "docker image prune -f || true"
+            sh 'docker stop test-app || true && docker rm test-app || true'
+            echo '❌ Pipeline failed. Check logs above.'
         }
     }
 }
